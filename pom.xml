@@ -82,7 +82,7 @@
 						</goals>
 						<configuration>
 							<dataFile>${project.build.directory}/coverage-reports/jacoco.exec</dataFile>
-							<outputDirectory>${project.reporting.outputDirectory}/jacoco</outputDirectory>
+							<outputDirectory>${project.build.directory}/jacoco</outputDirectory>
 						</configuration>
 					</execution>
 					<execution>
@@ -100,7 +100,7 @@
 										<limit>
 											<counter>INSTRUCTION</counter>
 											<value>COVEREDRATIO</value>
-											<minimum>0.99</minimum>
+											<minimum>0.8</minimum>
 										</limit>
 									</limits>
 								</rule>

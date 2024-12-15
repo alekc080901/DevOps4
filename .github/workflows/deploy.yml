@@ -8,9 +8,7 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
       - name: Set up JDK 17
@@ -34,6 +32,33 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
+  sonarqube:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v4
+        with:
+          args: >
+            -Dsonar.organization=nikitinfo
+            -Dsonar.projectKey=alekc080901_DevOps4
+            -Dsonar.core.codeCoveragePlugin=jacoco
+            -Dsonar.language=java
+            -Dsonar.coverage.jacoco.xmlReportPaths=${{ github.workspace }}/target/jacoco/jacoco.xml
+            -Dsonar.sources=target/classes
+            -Dsonar.tests=target/test-classes
+            -Dsonar.verbose=true
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs:
+      - build
+      - sonarqube
+    steps:
+      - uses: actions/checkout@v4
       - name: Store build jar as an artifact
         uses: actions/upload-artifact@v4
         with:
