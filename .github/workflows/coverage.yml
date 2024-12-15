@@ -1,31 +1,26 @@
-name: Java CI with Maven
+name: Measure coverage
 
 on:
-  push:
-    branches: [ "main" ]
   pull_request:
-    branches: [ "main" ]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
+    permissions:
+      pull-requests: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v2
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v1
         with:
-          java-version: '17'
-          distribution: 'temurin'
-          cache: maven
-      - name: Build with Maven
-        run: mvn -B package
+          java-version: 17
 
-      - name: Run tests to verify work
-        run: mvn test
+      - name: Run Coverage
+        run: |
+          chmod +x gradlew
+          ./gradlew testCoverage
 
-      - name: Add coverage to test analysis
+      - name: Add coverage to PR
         id: jacoco
         uses: madrapps/jacoco-report@v1.7.1
         with:
@@ -35,4 +30,3 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           min-coverage-overall: 40
           min-coverage-changed-files: 60
-
