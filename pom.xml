@@ -12,23 +12,6 @@
 	<packaging>jar</packaging>
 	<version>1.0</version>
 
-	<repositories>
-		<repository>
-			<id>gitlab-maven</id>
-			<url>${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/maven</url>
-		</repository>
-	</repositories>
-	<distributionManagement>
-		<repository>
-			<id>gitlab-maven</id>
-			<url>${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/maven</url>
-		</repository>
-		<snapshotRepository>
-			<id>gitlab-maven</id>
-			<url>${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/maven</url>
-		</snapshotRepository>
-	</distributionManagement>
-
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -59,26 +42,72 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
-				<configuration>
-					<classifier>service</classifier>
-					<outputDirectory>../build</outputDirectory>
-					<finalName>source</finalName>
-				</configuration>
 			</plugin>
 
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<version>3.4.2</version>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.22.2</version>
 				<configuration>
-					<archive>
-						<manifest>
-							<addClasspath>true</addClasspath>
-							<classpathPrefix>lib/</classpathPrefix>
-							<mainClass>ru.nikitinfo.sourceserver.SourceServerApplication</mainClass>
-						</manifest>
-					</archive>
+					<argLine>
+						--illegal-access=permit
+					</argLine>
+					<testFailureIgnore>true</testFailureIgnore>
+					<forkCount>2</forkCount>
+					<reuseForks>true</reuseForks>
+					<argLine>${surefireArgLine}</argLine>
 				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.8.12</version>
+				<executions>
+					<execution>
+						<id>default-prepare-agent</id>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+						<configuration>
+							<destFile>${project.build.directory}/coverage-reports/jacoco.exec</destFile>
+							<propertyName>surefireArgLine</propertyName>
+						</configuration>
+					</execution>
+					<execution>
+						<id>default-report</id>
+						<phase>test</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+						<configuration>
+							<dataFile>${project.build.directory}/coverage-reports/jacoco.exec</dataFile>
+							<outputDirectory>${project.reporting.outputDirectory}/jacoco</outputDirectory>
+						</configuration>
+					</execution>
+					<execution>
+						<id>default-check</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>check</goal>
+						</goals>
+						<configuration>
+							<dataFile>${project.build.directory}/coverage-reports/jacoco.exec</dataFile>
+							<rules>
+								<rule>
+									<element>BUNDLE</element>
+									<limits>
+										<limit>
+											<counter>INSTRUCTION</counter>
+											<value>COVEREDRATIO</value>
+											<minimum>0.99</minimum>
+										</limit>
+									</limits>
+								</rule>
+							</rules>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>

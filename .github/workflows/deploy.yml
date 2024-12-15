@@ -25,7 +25,7 @@ jobs:
           mkdir staging && cp target/*.jar staging
 
       - name: Run tests to verify work
-        run: mvn test
+        run: mvn verify
 
       - name: Set up a cache for Maven
         uses: actions/cache@v3
